@@ -8,13 +8,12 @@ import glob
 import time
 import requests
 import yaml
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 
 NOTIFY_SEVERITIES = {"CRITICAL", "HIGH"}
 NVD_API_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 
 def load_all_inventories(inventario_path):
-    """Lee todos los yamls de la carpeta inventario"""
     technologies = []
     for filepath in glob.glob(f"{inventario_path}/*.yaml"):
         with open(filepath, "r") as f:
@@ -27,20 +26,12 @@ def load_all_inventories(inventario_path):
                 technologies.append(dep)
     return technologies
 
-def query_nvd(keyword, version=None, api_key=None):
-    """Consulta NVD API"""
-    "pubStartDate": pub_start,
-    "pubEndDate": pub_end,
-
+def query_nvd(keyword, api_key=None):
     params = {
         "keywordSearch": keyword,
-        "pubStartDate": pub_start,
-        "pubEndDate": pub_end,
         "resultsPerPage": 50,
     }
-
     headers = {"apiKey": api_key} if api_key else {}
-
     try:
         response = requests.get(NVD_API_URL, params=params, headers=headers, timeout=30)
         response.raise_for_status()
@@ -50,7 +41,6 @@ def query_nvd(keyword, version=None, api_key=None):
         return []
 
 def parse_severity(vuln):
-    """Extrae severidad y score CVSS"""
     metrics = vuln.get("cve", {}).get("metrics", {})
     for key in ("cvssMetricV31", "cvssMetricV30", "cvssMetricV2"):
         if key in metrics and metrics[key]:
@@ -59,7 +49,6 @@ def parse_severity(vuln):
     return "UNKNOWN", 0.0
 
 def send_to_teams(webhook_url, alerts):
-    """Manda las alertas a Teams"""
     critical = sum(1 for a in alerts if a["severity"] == "CRITICAL")
     high = sum(1 for a in alerts if a["severity"] == "HIGH")
 
@@ -125,7 +114,7 @@ def main():
         repo = tech.get("repo", "unknown")
         print(f"  Checking: {name} {version} ({repo})...")
 
-        vulns = query_nvd(name, version, api_key)
+        vulns = query_nvd(name, api_key)
         for v in vulns:
             severity, score = parse_severity(v)
             if severity not in NOTIFY_SEVERITIES:
