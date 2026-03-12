@@ -29,7 +29,7 @@ def load_all_inventories(inventario_path):
 
 def query_nvd(keyword, version=None, api_key=None):
     """Consulta NVD API"""
-   pub_start = (datetime.now(timezone.utc) - timedelta(days=365)).strftime("%Y-%m-%dT%H:%M:%S.000")
+    pub_start = (datetime.now(timezone.utc) - timedelta(days=365)).strftime("%Y-%m-%dT%H:%M:%S.000")
     pub_end = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000")
 
     params = {
