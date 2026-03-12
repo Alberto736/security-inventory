@@ -33,7 +33,7 @@ def query_nvd(keyword, version=None, api_key=None):
     pub_end = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000")
 
     params = {
-        "keywordSearch": f"{keyword} {version}".strip() if version else keyword,
+        "keywordSearch": keyword,
         "pubStartDate": pub_start,
         "pubEndDate": pub_end,
         "resultsPerPage": 50,
