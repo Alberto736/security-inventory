@@ -10,6 +10,12 @@ headers = {
     "Accept": "application/vnd.github.v3+json"
 }
 
+EXCLUIR = [
+    "security-inventory",
+    "template-security",
+    "onboarding-xerpa",
+]
+
 dependabot_content = """version: 2
 
 updates:
@@ -128,6 +134,7 @@ repos_response = requests.get(
     headers=headers
 )
 repos = repos_response.json()
+repos = [r for r in repos if r["name"] not in EXCLUIR]
 
 for repo in repos:
     repo_name = repo["name"]
