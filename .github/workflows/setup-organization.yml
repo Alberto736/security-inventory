@@ -1,0 +1,25 @@
+name: Setup Organization Repositories
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Setup all repositories
+        env:
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+          ORG_NAME: ${{ secrets.ORG_NAME }}
+        run: python scripts/setup_organization.py
